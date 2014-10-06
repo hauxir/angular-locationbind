@@ -19,8 +19,6 @@ function($location) {
                 for(var key in watched_vars) {
                     if(getparams[key]) {
                         var val = getparams[key];
-                        var is_string = false;
-
                         try {
                             val = angular.fromJson(val);
                         } catch(SyntaxError) {

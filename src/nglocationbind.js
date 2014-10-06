@@ -61,7 +61,7 @@ function($location) {
             function() {
                 return angular.toJson(
                     names.map(function(name) {
-                        return eval("$scope." + name);
+                        return $scope.$eval("$scope." + name);
                     })
                 );
             },

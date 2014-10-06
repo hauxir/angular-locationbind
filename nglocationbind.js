@@ -35,7 +35,7 @@ function($location) {
                              }
                              var childkey = key.substring(lastdot);
                              par = "$scope." + key.substring(0,lastdot);
-                             $scope.$eval(par + childkey + "=" + val + ";");
+                             eval(par + childkey + "=" + val + ";");
                         }
                         else if(lastbracket != -1) {
                              if(typeof val == "string") {
@@ -43,7 +43,7 @@ function($location) {
                              }
                              var childkey = key.substring(lastbracket);
                              par = "$scope." + key.substring(0,lastbracket);
-                             $scope.$eval(par + childkey + "=" + val + ";");
+                             eval(par + childkey + "=" + val + ";");
                         } else {
                             $scope[key] = val;
                         }

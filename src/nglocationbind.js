@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module( 'ngLocationBind',[])
-.factory( '$locationbind', [ '$location','$route',
-function($location, $route) {
+.factory( '$locationbind', [ '$location',
+function($location) {
     return function ($scope,names) {
         var watched_vars = {};
         names.map(function(name) {
@@ -19,23 +19,37 @@ function($location, $route) {
                 for(var key in watched_vars) {
                     if(getparams[key]) {
                         var val = getparams[key];
+                        var is_string = false;
 
                         try {
                             val = angular.fromJson(val);
                         } catch(SyntaxError) {
                             //ignore, maybe its just a string
                         }
-
-                        var item = $scope;
-                        var hierarchy = key.split(".");
-                        while(hierarchy.length > 1) {
-                            item = item[hierarchy.shift()];
+                        var par = $scope;
+                        var lastbracket = key.lastIndexOf("[");
+                        var lastdot = key.lastIndexOf(".");
+                        if(lastdot > lastbracket) {
+                             if(typeof val == "string") {
+                                val = "'" + val + "'";
+                             }
+                             var childkey = key.substring(lastdot);
+                             par = "$scope." + key.substring(0,lastdot);
+                             $scope.$eval(par + childkey + "=" + val + ";");
                         }
-
-                        item[hierarchy.shift()] = val;
+                        else if(lastbracket != -1) {
+                             if(typeof val == "string") {
+                                val = "'" + val + "'";
+                             }
+                             var childkey = key.substring(lastbracket);
+                             par = "$scope." + key.substring(0,lastbracket);
+                             $scope.$eval(par + childkey + "=" + val + ";");
+                        } else {
+                            $scope[key] = val;
+                        }
                     }
                     else if(getparams[key] != old[key]) {
-                        $route.reload();
+                        window.location.reload();
                     }
                 }
             },
@@ -47,12 +61,7 @@ function($location, $route) {
             function() {
                 return angular.toJson(
                     names.map(function(name) {
-                        var item = $scope;
-                        var hierarchy = name.split(".");
-                        while(hierarchy.length > 1) {
-                            item = item[hierarchy.shift()];
-                        }
-                        return item[hierarchy.shift()];
+                        return eval("$scope." + name);
                     })
                 );
             },
